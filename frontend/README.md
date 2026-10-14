@@ -30,6 +30,8 @@ npm.cmd start
 
 Open **http://localhost:4200**.
 
+Sign in, create your own account, or select **Explore the demo portfolio**. A new registration starts with an empty portfolio. Existing portfolio, withdrawal, and statement screens retain their design. JWTs stay in memory; refresh cookies are HttpOnly. See [security and storage details](../backend/SECURITY.md).
+
 On Linux/macOS use `sh mvnw spring-boot:run` in the backend and `npm start` in the frontend.
 
 No package installation is needed to run the frontend: its local server uses Node's built-in modules. Do not open `index.html` directly as a file; JavaScript modules and API requests need the local HTTP server.
@@ -49,7 +51,7 @@ Stop the server with Ctrl+C.
 
 ### Portfolio dashboard
 
-- Investor selection for Alice Mokoena and Thabo Nkosi, matching the seeded assessment data.
+- Account-specific portfolios. Sign in as Alice or Thabo for the corresponding sample data; users cannot switch into someone else's portfolio.
 - Current total portfolio balance and product balances.
 - Portfolio allocation chart and per-product shares based on live balances.
 - Product count, eligible withdrawal limit, and completed-withdrawal count.
@@ -126,16 +128,24 @@ npm.cmd run test:browser
 
 Keep the Java backend running on port 8080. Playwright starts the frontend server if needed.
 
-**Important for the assessment sample data:** the live browser workflow submits a real R 1.00 withdrawal for Alice's discretionary product. Restart the in-memory backend to restore the initial demo balances. Screenshots are generated from real API data, so amounts reflect any previously completed demo/test requests.
+**Important for the assessment sample data:** the live browser workflow submits a real R 1.00 withdrawal for Alice's discretionary product. H2 is now persistent, so restarting preserves balances and registered accounts. Screenshots are generated from real API data; amounts reflect previously completed demo/test requests. Do not delete the data directory to reset a demo if it contains accounts you want to keep.
 
 Verified:
 
-- Seven precision, amount-rule, retirement-age, and date-filter unit tests.
-- Five Chrome browser tests covering the full withdrawal and CSV flow, age restrictions, mobile overflow/navigation, unavailable-service recovery, and persistent CSV-error feedback.
+- Ten precision, amount-rule, retirement-age, date-filter, South African ID, and Luhn unit tests.
+- Eight Chrome browser tests covering the signed-in withdrawal/CSV flow, age restrictions, mobile layout, service recovery, CSV errors, masked registration, logout, and multiple-tab refresh.
 - Actual downloaded CSV contents were checked, not just a success toast.
 - Desktop and mobile screenshots were visually inspected.
 
+Additional browser scenarios verify masked registration, sign-in restoration after reload, no tokens in browser storage, cookie-only access rejection, account isolation, logout, and coordinated multi-tab refresh. Authentication screenshots are saved alongside the investment screenshots.
+
 ## Screenshots
+
+### Sign in and registration
+
+![Sign-in screen](screenshots/login-desktop.png)
+
+![Masked registration screen](screenshots/register-desktop.png)
 
 ### Portfolio dashboard
 
@@ -163,4 +173,4 @@ The frontend requirements are implemented: portfolio dashboard, withdrawal form,
 
 Backend setup, API documentation, business-rule assumptions, and backend AI disclosure remain documented in `../backend/README.md`. The MIT license at `../LICENSE` covers this frontend.
 
-Before final submission, Alex still needs to review the assisted code, confirm the public `main` branch is accessible without sign-in, and submit the repository URL through the assessment portal before 14 October 2026 at 18:48.
+Before final submission, Alex still needs to review the assisted code, confirm the public `main` branch is accessible without sign-in, and submit the repository URL through the assessment portal before 14 October 2026 at 18:48. Login/registration, masked profiles, and persistent accounts are added as requested; see the backend security document for HTTPS and secret configuration.

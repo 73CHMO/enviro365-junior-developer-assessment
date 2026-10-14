@@ -9,8 +9,11 @@ const files = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
+  ['/auth.css', ['auth.css', 'text/css; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/money.js', ['money.js', 'text/javascript; charset=utf-8']],
+  ['/auth.js', ['auth.js', 'text/javascript; charset=utf-8']],
+  ['/identity.js', ['identity.js', 'text/javascript; charset=utf-8']],
   ['/favicon.svg', ['favicon.svg', 'image/svg+xml']],
 ]);
 const server = createServer(async (request, response) => {
@@ -35,11 +38,17 @@ const server = createServer(async (request, response) => {
       const upstream = await fetch(new URL(path + requestUrl.search, 'http://127.0.0.1:8080'), {
         method: request.method,
         headers: { Accept: request.headers.accept || '*/*',
+          ...(request.headers.authorization ? { Authorization: request.headers.authorization } : {}),
+          ...(request.headers.cookie ? { Cookie: request.headers.cookie } : {}),
+          ...(request.headers['x-xsrf-token'] ? { 'X-XSRF-TOKEN': request.headers['x-xsrf-token'] } : {}),
+          ...(request.headers.origin ? { Origin: request.headers.origin } : {}),
           ...(request.headers['content-type'] ? { 'Content-Type': request.headers['content-type'] } : {}) },
         body: request.method === 'POST' ? Buffer.concat(chunks) : undefined,
         signal: AbortSignal.timeout(15000),
       });
       const headers = {};
+      const cookies = upstream.headers.getSetCookie();
+      if (cookies.length) headers['Set-Cookie'] = cookies;
       for (const key of ['content-type', 'content-disposition', 'allow']) {
         if (upstream.headers.has(key)) headers[key] = upstream.headers.get(key);
       }
@@ -67,6 +76,8 @@ const server = createServer(async (request, response) => {
       'Cache-Control': 'no-cache',
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'same-origin',
+      'X-Frame-Options': 'DENY',
+      'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
       'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
     });
     response.end(request.method === 'HEAD' ? undefined : content);

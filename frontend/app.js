@@ -1,4 +1,6 @@
 import { toCents, decimal, currency, maximum, validateWithdrawal, parseApiJson, dateBounds, filteredHistory } from './money.js';
+import { login, register, logout, restoreSession, sessionRequest, onSessionChange, currentUser } from './auth.js';
+import { validIdentity, validCard } from './identity.js';
 
 const $ = id => document.getElementById(id);
 const colors = ['#3a8e75', '#b99a63', '#6994ab', '#8c82ad'];
@@ -51,7 +53,7 @@ function dateDisplay(value) {
 async function api(path, options = {}, signal) {
   let response;
   try {
-    response = await fetch('/api/investors/' + state.investorId + path, { ...options,
+    response = await sessionRequest('/api/investors/' + state.investorId + path, { ...options,
       signal: signal || AbortSignal.timeout(18000) });
   } catch (error) {
     if (error.name === 'AbortError') throw error;
@@ -67,7 +69,8 @@ async function api(path, options = {}, signal) {
   return body;
 }
 function setControls() {
-  $('investor-picker').disabled = state.submitting;
+  $('investor-picker').disabled = true;
+  $('logout').disabled = state.submitting;
   $('refresh').disabled = state.loading || state.submitting;
   $('confirm-withdrawal').disabled = state.submitting;
   $('cancel-withdrawal').disabled = state.submitting;
@@ -295,7 +298,7 @@ $('statement-form').addEventListener('submit', async event => {
   if (bounds.to) params.set('to', bounds.to);
   $('download-csv').disabled = true;
   try {
-    const response = await fetch('/api/investors/' + statementInvestorId + '/withdrawals/export' + (params.size ? '?' + params : ''), { signal: AbortSignal.timeout(18000) });
+    const response = await sessionRequest('/api/investors/' + statementInvestorId + '/withdrawals/export' + (params.size ? '?' + params : ''), { signal: AbortSignal.timeout(18000) });
     if (!response.ok) {
       let body = {};
       try { body = await response.json(); } catch { /* Use the readable fallback. */ }
@@ -328,4 +331,136 @@ window.addEventListener('hashchange', setView);
 $('copyright-year').textContent = new Date().getFullYear();
 hydrateIcons();
 setView();
-loadPortfolio();
+setupAuthentication();
+function setupAuthentication() {
+  let activeTab = 'login';
+  function tab(name) {
+    activeTab = name;
+    $('login-form').hidden = name !== 'login';
+    $('register-form').hidden = name !== 'register';
+    $('login-tab').setAttribute('aria-selected', String(name === 'login'));
+    $('register-tab').setAttribute('aria-selected', String(name === 'register'));
+    $('auth-title').textContent = name === 'login' ? 'Welcome back.' : 'Your next chapter starts here.';
+    $('auth-subtitle').textContent = name === 'login' ? 'Sign in to a clear view of your portfolio.' : 'Create an account, with your details protected.';
+    notice($('auth-error'), '');
+  }
+  function busy(pending) {
+    for (const id of ['login-submit', 'register-submit', 'demo-login', 'login-tab', 'register-tab']) $(id).disabled = pending;
+    $('login-submit').textContent = pending ? 'Signing in…' : 'Sign in securely';
+    $('register-submit').textContent = pending ? 'Creating your account…' : 'Create your account';
+  }
+  onSessionChange(user => {
+    if (!user) {
+      state.controller?.abort();
+      state.portfolio = null;
+      state.history = [];
+      state.pending = null;
+      state.submitting = false;
+      if ($('confirm-dialog').open) $('confirm-dialog').close();
+      if ($('profile-dialog').open) $('profile-dialog').close();
+      $('workspace').hidden = true;
+      $('auth-shell').hidden = false;
+      $('toast').hidden = true;
+      $('content').hidden = true;
+      return;
+    }
+    const changed = state.investorId !== String(user.investorId) || !state.portfolio;
+    state.investorId = String(user.investorId);
+    $('investor-picker').innerHTML = '<option value="' + user.investorId + '">' + escape(user.firstName + ' ' + user.lastName) + '</option>';
+    $('profile-email').textContent = user.maskedEmail;
+    $('profile-id').textContent = user.maskedIdNumber || 'Demo account';
+    $('profile-card').textContent = user.maskedCardNumber || 'No card reference';
+    $('workspace').hidden = false;
+    $('auth-shell').hidden = true;
+    if (changed) {
+      state.pending = null;
+      if ($('confirm-dialog').open) $('confirm-dialog').close();
+      if ($('profile-dialog').open) $('profile-dialog').close();
+      state.portfolio = null;
+      $('amount').value = '';
+      $('product-picker').innerHTML = '';
+      loadPortfolio();
+    }
+  });
+  $('login-tab').addEventListener('click', () => tab('login'));
+  $('register-tab').addEventListener('click', () => tab('register'));
+  for (const id of ['login-form', 'register-form']) {
+    $(id).addEventListener('input', () => notice($('auth-error'), ''));
+  }
+  for (const id of ['login-tab', 'register-tab']) $(id).addEventListener('keydown', event => {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      tab(activeTab === 'login' ? 'register' : 'login');
+      $(activeTab + '-tab').focus();
+    }
+  });
+  $('login-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    busy(true);
+    notice($('auth-error'), '');
+    try {
+      await login({ email: $('login-email').value.trim(), password: $('login-password').value });
+      $('login-password').value = '';
+    } catch (error) { notice($('auth-error'), error.message); }
+    finally { $('login-password').value = ''; busy(false); }
+  });
+  $('demo-login').addEventListener('click', () => {
+    $('login-email').value = 'alice@example.com';
+    $('login-password').value = 'Enviro365!Demo2026';
+    $('login-form').requestSubmit();
+  });
+  $('register-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    notice($('auth-error'), '');
+    const idNumber = $('register-id').value.trim();
+    const birthDate = $('register-dob').value;
+    const cardNumber = $('register-card').value.trim();
+    const password = $('register-password').value;
+    if (!validIdentity(idNumber, birthDate)) {
+      notice($('auth-error'), 'Enter a valid South African ID number and matching date of birth.');
+      $('register-id').focus();
+      return;
+    }
+    if (!validCard(cardNumber)) {
+      notice($('auth-error'), 'The card number failed the Luhn check. Check the digits or leave this optional field empty.');
+      $('register-card').focus();
+      return;
+    }
+    if (password.length < 12 || new TextEncoder().encode(password).length > 72 || password !== $('register-confirm').value) {
+      notice($('auth-error'), 'Use matching passwords of at least 12 characters and no more than 72 UTF-8 bytes.');
+      return;
+    }
+    busy(true);
+    try {
+      await register({
+        firstName: $('register-firstname').value.trim(), lastName: $('register-lastname').value.trim(),
+        email: $('register-email').value.trim(), password, idNumber, dateOfBirth: birthDate,
+        cardNumber: cardNumber || null,
+      });
+      $('register-form').reset();
+    } catch (error) {
+      notice($('auth-error'), error.message);
+    } finally {
+      $('register-id').value = '';
+      $('register-card').value = '';
+      $('register-password').value = '';
+      $('register-confirm').value = '';
+      busy(false);
+    }
+  });
+  $('profile-button').addEventListener('click', () => { if (currentUser()) $('profile-dialog').showModal(); });
+  $('logout').addEventListener('click', async () => {
+    $('logout').disabled = true;
+    try {
+      await logout();
+      tab('login');
+      $('login-password').value = '';
+      $('register-form').reset();
+      $('login-email').focus();
+    } catch (error) { toast('Sign-out could not be confirmed. Please retry: ' + error.message); }
+    finally { $('logout').disabled = false; }
+  });
+  $('auth-status').hidden = false;
+  busy(true);
+  restoreSession().finally(() => { $('auth-status').hidden = true; busy(false); });
+}

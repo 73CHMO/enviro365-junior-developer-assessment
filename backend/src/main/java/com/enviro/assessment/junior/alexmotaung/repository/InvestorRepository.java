@@ -4,4 +4,5 @@ import com.enviro.assessment.junior.alexmotaung.model.Investor;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InvestorRepository extends JpaRepository<Investor, Long> {
+    java.util.Optional<Investor> findByEmail(String email);
 }
