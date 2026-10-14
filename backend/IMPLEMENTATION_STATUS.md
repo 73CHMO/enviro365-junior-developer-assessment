@@ -25,7 +25,7 @@ The integration suite demonstrates simultaneous withdrawals produce one successf
 
 `mvnw.cmd clean verify` also passed all 52 tests and produced the executable Spring Boot jar.
 
-Live HTTP verification used that jar on port 8081 because another application occupied port 8080. Portfolio retrieval returned 200 with two products. Posting a 5000.00 withdrawal returned 201, changed the discretionary balance from 50000.00 to 45000.00, and created one history record. CSV export returned 200 and contained that notice.
+Live HTTP verification initially used that jar on port 8081 because another application occupied port 8080. After that application was closed, verification also passed on the default port 8080. Portfolio retrieval returned 200 with two products. Posting a 5000.00 withdrawal returned 201, changed the discretionary balance from 50000.00 to 45000.00, and created one history record. CSV export returned 200 and contained that notice. A retirement withdrawal for the age-65 investor returned 400.
 
 ## Repository
 
