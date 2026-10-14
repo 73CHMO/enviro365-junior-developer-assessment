@@ -150,7 +150,7 @@ test('registration masks references, restores sign-in, protects ownership and re
   await page.locator('#register-lastname').fill('Investor');
   await page.locator('#register-email').fill(email);
   await page.locator('#register-id').fill(id);
-  await page.locator('#register-dob').fill(birthDate);
+  await expect(page.locator('#register-dob')).toHaveValue(birthDate);
   await page.locator('#register-card').fill('4242424242424241');
   await page.locator('#register-password').fill('Unique!Passphrase2026');
   await page.locator('#register-confirm').fill('Unique!Passphrase2026');
