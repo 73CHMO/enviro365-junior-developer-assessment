@@ -36,7 +36,7 @@ If another application already uses port 8080, run the jar with `--server.port=8
 
 ## Seed data and database
 
-H2 uses in-memory storage and JPA creates the schema on startup. Restarting the application resets all balances and notices.
+H2 now uses persistent file storage under `backend/data` and JPA updates the schema. Accounts, balances, and notices survive restart. Database files and development security keys are ignored by Git. The original in-memory setup was replaced when registration and persistent storage were requested.
 
 | Investor ID | Investor | Age | Product ID | Product type | Initial balance (ZAR) |
 | --- | --- | --- | --- | --- | --- |
@@ -85,6 +85,8 @@ Accepted notices immediately deduct the amount and are stored with `COMPLETED` s
 This immediate deduction is the plan's documented assessment assumption; no bank transfer or external settlement is performed. A repeated successful POST creates another withdrawal; duplicate-request protection is outside this assessment scope.
 
 ## API contract
+
+Investment endpoints require `Authorization: Bearer <access JWT>` and enforce account ownership. Sign in through the frontend, or follow the auth flow in [SECURITY.md](SECURITY.md). Cookies alone cannot authenticate investment requests. Portfolio email values are now masked.
 
 All routes begin with `http://localhost:8080`.
 
@@ -195,6 +197,8 @@ For Postman, import [Enviro365.postman_collection.json](docs/Enviro365.postman_c
 
 Start the application in another terminal, then run:
 
+These examples now require JWT authentication. Import the Postman collection and run its CSRF and Sign in requests first, or use the frontend. The unauthenticated PowerShell commands below illustrate the paths and payloads; add `-Headers @{Authorization="Bearer $accessToken"}` using a token from the auth flow to execute them.
+
 ```powershell
 $apiBase = 'http://localhost:8080/api/investors/1'
 Invoke-RestMethod "$apiBase/portfolio"
@@ -211,7 +215,7 @@ CORS permits `http://localhost:4200`, `http://localhost:3000`, and `http://local
 
 Override origins with `--app.frontend-origins=http://localhost:4200` when running the jar. The frontend should refresh the portfolio and history after a successful withdrawal and display the returned `error` and field `details` on failure.
 
-The adjacent `frontend` folder is reserved for UI work. This backend delivery does not yet satisfy the assessment's complete frontend submission requirement.
+The adjacent `frontend` folder contains the completed responsive UI, login/register flow, frontend setup instructions, tests, and screenshots.
 
 ## Tests
 
@@ -240,4 +244,4 @@ ChatGPT/Codex assisted with architecture planning, Java implementation, tests, a
 
 This is a local assessment prototype using sample investors and in-memory H2 storage. Age is stored as an integer as specified by the plan. Investor path IDs identify sample data without authentication. Accepted notices deduct balances immediately. Product classifications beyond RETIREMENT are illustrative.
 
-Authentication, investor/product CRUD, approval workflows, external payment integrations, and deployment infrastructure are outside the supplied plan.
+JWT authentication and registration were added at the user's request after the initial plan; see [SECURITY.md](SECURITY.md). Investor/product CRUD, approval workflows, external payment integrations, and deployment infrastructure remain outside scope.

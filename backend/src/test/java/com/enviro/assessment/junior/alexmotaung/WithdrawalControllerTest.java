@@ -18,6 +18,10 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,18 +39,27 @@ class WithdrawalControllerTest {
     @Autowired WithdrawalRepository withdrawals;
     @Autowired WithdrawalService service;
     @Autowired JdbcTemplate jdbc;
+    @Autowired UserAccountRepository accounts;
+    @Autowired RefreshTokenRepository refreshTokens;
+    @Autowired WebApplicationContext context;
     Investor investor;
     Product savings;
     Product retirement;
 
     @BeforeEach
     void resetDatabase() {
+        refreshTokens.deleteAllInBatch();
+        accounts.deleteAllInBatch();
         withdrawals.deleteAllInBatch();
         products.deleteAllInBatch();
         investors.deleteAllInBatch();
         investor = investors.save(new Investor("Alex", "Motaung", "alex@example.com", 65));
         savings = products.save(new Product("Savings", ProductType.SAVINGS, new BigDecimal("100.00"), investor));
         retirement = products.save(new Product("Retirement", ProductType.RETIREMENT, new BigDecimal("100.00"), investor));
+        var account = accounts.save(new UserAccount("alex@example.com", "unused-test-hash", investor, null, null, null));
+        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity())
+                .defaultRequest(get("/").with(jwt().jwt(token -> token.subject(account.getId().toString()))).with(csrf()))
+                .build();
     }
 
     String base() {
@@ -66,10 +79,10 @@ class WithdrawalControllerTest {
     }
 
     @Test
-    void unknownInvestorReturnsConsistent404() throws Exception {
-        mvc.perform(get("/api/investors/999999/portfolio")).andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.error").value("Investor not found"))
+    void otherInvestorReturnsConsistent403() throws Exception {
+        mvc.perform(get("/api/investors/999999/portfolio")).andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.error").value("You cannot access this portfolio"))
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.details").isMap());
     }
@@ -207,9 +220,9 @@ class WithdrawalControllerTest {
     }
 
     @Test
-    void missingInvestorHistoryAndExportReturn404() throws Exception {
-        mvc.perform(get("/api/investors/999999/withdrawals")).andExpect(status().isNotFound());
-        mvc.perform(get("/api/investors/999999/withdrawals/export")).andExpect(status().isNotFound());
+    void otherInvestorHistoryAndExportReturn403() throws Exception {
+        mvc.perform(get("/api/investors/999999/withdrawals")).andExpect(status().isForbidden());
+        mvc.perform(get("/api/investors/999999/withdrawals/export")).andExpect(status().isForbidden());
     }
 
     @Test

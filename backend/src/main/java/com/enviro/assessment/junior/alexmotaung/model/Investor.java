@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "investors")
@@ -20,6 +23,15 @@ public class Investor {
     private String email;
     @Min(0) @Column(nullable = false)
     private Integer age;
+    private LocalDate dateOfBirth;
+
+    public Integer getAge() {
+        return dateOfBirth == null ? age : Period.between(dateOfBirth, LocalDate.now(ZoneId.of("Africa/Johannesburg"))).getYears();
+    }
+
+    public void setDateOfBirth(LocalDate date) {
+        dateOfBirth = date;
+    }
 
     public Investor(String firstName, String lastName, String email, Integer age) {
         this.firstName = firstName;

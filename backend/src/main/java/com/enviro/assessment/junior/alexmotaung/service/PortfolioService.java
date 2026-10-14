@@ -21,7 +21,8 @@ public class PortfolioService {
         var investor = investors.findById(investorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Investor not found"));
         var investorDTO = new InvestorDTO(investor.getId(), investor.getFirstName(),
-                investor.getLastName(), investor.getEmail(), investor.getAge());
+                investor.getLastName(), investor.getEmail().substring(0, 1) + "***"
+                + investor.getEmail().substring(investor.getEmail().indexOf('@')), investor.getAge());
         var productDTOs = products.findByInvestorIdOrderByIdAsc(investorId).stream()
                 .map(p -> new ProductDTO(p.getId(), p.getName(), p.getType(), p.getBalance()))
                 .toList();
