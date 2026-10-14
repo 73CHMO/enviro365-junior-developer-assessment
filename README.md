@@ -22,3 +22,20 @@ cd backend
 The API runs at `http://localhost:8080/api/investors/1/portfolio`.
 
 Development occurs on the local `alex` branch. Verified changes are promoted through `develop` to `main`. The public submission must ultimately include both the completed frontend and backend on `main`.
+
+## Remaining assessment checklist
+
+- [ ] Build the frontend portfolio dashboard and product display.
+- [ ] Add a withdrawal form with validation, API submission, and clear success/error messages.
+- [ ] Show withdrawal history and download CSV statements with date filtering.
+- [ ] Verify the complete UI-to-backend flow, including rejected requests and balance/history refresh.
+- [ ] Document frontend setup and add UI screenshots to the README.
+- [ ] Alex reviews and understands the AI-assisted implementation; keep the AI disclosure accurate.
+- [ ] Promote the completed frontend and final documentation through `develop` to `main`.
+- [ ] Confirm the public repository works without sign-in and submit its URL in the portal before 14 October 2026 at 18:48.
+
+The backend APIs, business rules, H2 integration, four backend advanced features (DTOs, input validation, global exception handling, and tests), and public repository are already complete.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). Copyright (c) 2026 Alex Motaung.
