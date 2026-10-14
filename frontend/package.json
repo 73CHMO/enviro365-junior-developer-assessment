@@ -1,0 +1,20 @@
+{
+  "name": "enviro365-investment-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Professional investment portfolio, withdrawal and statement interface",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check app.js && node --check money.js && node --check server.mjs",
+    "test:browser": "playwright test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  }
+}
