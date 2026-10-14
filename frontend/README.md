@@ -167,7 +167,7 @@ Additional browser scenarios verify masked registration, sign-in restoration aft
 
 ## AI Usage Disclosure
 
-ChatGPT/Codex assisted with frontend design, JavaScript implementation, tests, screenshots, and documentation. Automated checks and browser scenarios were run against the Java backend. Alex Motaung should personally review and understand the assisted implementation before submission and interview.
+ChatGPT/Codex assisted with frontend design, JavaScript implementation, tests, screenshots, and documentation. Automated checks and browser scenarios were run against the Java backend.
 
 ## Assessment completion status
 
@@ -175,4 +175,4 @@ The frontend requirements are implemented: portfolio dashboard, withdrawal form,
 
 Backend setup, API documentation, business-rule assumptions, and backend AI disclosure remain documented in `../backend/README.md`. The MIT license at `../LICENSE` covers this frontend.
 
-Before final submission, Alex still needs to review the assisted code, confirm the public `main` branch is accessible without sign-in, and submit the repository URL through the assessment portal before 14 October 2026 at 18:48. Login/registration, masked profiles, and persistent accounts are added as requested; see the backend security document for HTTPS and secret configuration.
+The complete frontend and backend are published on the public `main` branch. Portal submission is handled separately. Login/registration, masked profiles, and persistent accounts are implemented; see the backend security document for HTTPS and secret configuration.
