@@ -9,9 +9,11 @@ import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/investors/{investorId}/withdrawals")
+@PreAuthorize("@portfolioAccess.owns(authentication, #investorId)")
 public class WithdrawalController {
     private final WithdrawalService withdrawals;
 

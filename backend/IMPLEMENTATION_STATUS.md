@@ -35,4 +35,4 @@ Public repository: https://github.com/73CHMO/enviro365-junior-developer-assessme
 
 ## Remaining assessment work
 
-The backend is the current scope. The frontend, UI screenshots, Alex's personal code review, and portal submission remain separate tasks. The assessment's complete submission requires frontend and backend in this public repository on `main`.
+The frontend and UI screenshots are complete. The requested security extension adds JWT login/registration, persistent accounts, account ownership enforcement, rotating/revocable refresh tokens, masked references, and ID/Luhn checks. All 77 backend tests pass; see SECURITY.md for the added scope and deployment requirements. Alex's personal review and portal submission remain.
