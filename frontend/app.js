@@ -1,6 +1,6 @@
 import { toCents, decimal, currency, maximum, validateWithdrawal, parseApiJson, dateBounds, filteredHistory } from './money.js';
 import { login, register, logout, restoreSession, sessionRequest, onSessionChange, currentUser } from './auth.js';
-import { validIdentity, validCard } from './identity.js';
+import { validIdentity, validCard, dateFromIdentity } from './identity.js';
 
 const $ = id => document.getElementById(id);
 const colors = ['#3a8e75', '#b99a63', '#6994ab', '#8c82ad'];
@@ -384,6 +384,13 @@ function setupAuthentication() {
   });
   $('login-tab').addEventListener('click', () => tab('login'));
   $('register-tab').addEventListener('click', () => tab('register'));
+  $('id-help').textContent = 'Your date of birth is filled from the ID. Check the century and adjust if needed. Only a fingerprint and the last four ID digits are retained.';
+  $('register-id').addEventListener('input', () => {
+    const id = $('register-id').value.trim();
+    if (!validIdentity(id, $('register-dob').value)) {
+      $('register-dob').value = dateFromIdentity(id);
+    }
+  });
   for (const id of ['login-form', 'register-form']) {
     $(id).addEventListener('input', () => notice($('auth-error'), ''));
   }
@@ -442,6 +449,7 @@ function setupAuthentication() {
       notice($('auth-error'), error.message);
     } finally {
       $('register-id').value = '';
+      $('register-dob').value = '';
       $('register-card').value = '';
       $('register-password').value = '';
       $('register-confirm').value = '';

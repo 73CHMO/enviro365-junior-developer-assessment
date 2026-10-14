@@ -45,7 +45,7 @@ Registration requires:
 - First/last name and email.
 - Password.
 - South African 13-digit ID number.
-- Explicit date of birth to avoid ambiguity from the ID's two-digit year.
+- Date of birth, automatically filled by the frontend and editable to confirm the ID's two-digit-year century.
 - An optional card number.
 
 South African IDs must have a valid checksum, valid citizenship/administrative digits, and a matching real date of birth that is not future-dated or more than 120 years old. Registered age is derived from date of birth when read. These checks validate structure, not government identity ownership.
@@ -109,7 +109,7 @@ Backend: 77 tests cover the original financial rules and added authentication, m
 
 An additional production cookie-policy test verifies the Secure __Host- prefix, root path, HttpOnly/SameSite flags, and absence of Domain. Persistent storage was independently checked after application shutdown: five accounts and three masked card references remained on disk. All eight authenticated browser scenarios passed.
 
-Frontend unit tests: 10 checks cover exact money/date handling and ID/Luhn validation. Browser verification additionally covers signed-in withdrawals/CSV, registration masking, refresh restoration, account isolation, logout, and multiple tabs.
+Frontend unit tests: 12 checks cover exact money/date handling, ID/Luhn validation, and automatic birth-date inference. Browser verification additionally covers signed-in withdrawals/CSV, automatic birth-date entry, registration masking, refresh restoration, account isolation, logout, and multiple tabs.
 
 ## References
 
