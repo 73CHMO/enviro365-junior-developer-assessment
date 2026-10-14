@@ -32,6 +32,8 @@ Open **http://localhost:4200**.
 
 Sign in, create your own account, or select **Explore the demo portfolio**. A new registration starts with an empty portfolio. Existing portfolio, withdrawal, and statement screens retain their design. JWTs stay in memory; refresh cookies are HttpOnly. See [security and storage details](../backend/SECURITY.md).
 
+Entering a complete, valid South African ID fills the date of birth automatically. It chooses the most recent valid date in the supported 120-year range. Because the ID contains only a two-digit year, confirm the century and edit the date if necessary; the backend still checks the match. Incomplete or invalid ID input clears an inferred date.
+
 On Linux/macOS use `sh mvnw spring-boot:run` in the backend and `npm start` in the frontend.
 
 No package installation is needed to run the frontend: its local server uses Node's built-in modules. Do not open `index.html` directly as a file; JavaScript modules and API requests need the local HTTP server.
@@ -132,7 +134,7 @@ Keep the Java backend running on port 8080. Playwright starts the frontend serve
 
 Verified:
 
-- Ten precision, amount-rule, retirement-age, date-filter, South African ID, and Luhn unit tests.
+- Twelve precision, amount-rule, retirement-age, date-filter, South African ID, date-of-birth inference, and Luhn unit tests.
 - Eight Chrome browser tests covering the signed-in withdrawal/CSV flow, age restrictions, mobile layout, service recovery, CSV errors, masked registration, logout, and multiple-tab refresh.
 - Actual downloaded CSV contents were checked, not just a success toast.
 - Desktop and mobile screenshots were visually inspected.
