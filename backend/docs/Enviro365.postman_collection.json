@@ -1,0 +1,73 @@
+{
+  "info": {
+    "name": "Enviro365 Investment Backend",
+    "description": "Four backend routes from BACKEND_PLAN.md. Run a fresh seeded backend first. POST requests change the balance.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "investorId",
+      "value": "1"
+    },
+    {
+      "key": "productId",
+      "value": "2"
+    }
+  ],
+  "item": [
+    {
+      "name": "Retrieve portfolio",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/investors/{{investorId}}/portfolio"
+      }
+    },
+    {
+      "name": "Create withdrawal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productId\": {{productId}},\n  \"amount\": 5000.00\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/investors/{{investorId}}/withdrawals"
+      }
+    },
+    {
+      "name": "Retrieve history",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/investors/{{investorId}}/withdrawals"
+      }
+    },
+    {
+      "name": "Download CSV statement",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/investors/{{investorId}}/withdrawals/export"
+      }
+    },
+    {
+      "name": "Download filtered CSV statement",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/investors/{{investorId}}/withdrawals/export?from=2026-10-01T00:00:00&to=2026-10-31T23:59:59.999999999"
+      }
+    }
+  ]
+}
