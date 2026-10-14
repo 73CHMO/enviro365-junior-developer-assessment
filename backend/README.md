@@ -238,7 +238,7 @@ Tests use a fixed clock where timestamp assertions require determinism. Integrat
 
 ## AI Usage Disclosure
 
-ChatGPT/Codex assisted with architecture planning, Java implementation, tests, and documentation. Automated build and test results are documented in [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md). Alex Motaung should review and understand the assisted code before submission and interview; this disclosure does not claim that personal review has already happened.
+ChatGPT/Codex assisted with architecture planning, Java implementation, tests, and documentation. Automated build and test results are documented in [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
 
 ## Assessment assumptions
 
