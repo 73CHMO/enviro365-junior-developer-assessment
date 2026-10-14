@@ -32,7 +32,7 @@ java -jar target/junior-developer-assessment-0.0.1-SNAPSHOT.jar
 
 The API listens at `http://localhost:8080`. There is no HTML page at the root URL; use the API paths below. Stop the process with Ctrl+C.
 
-If another application already uses port 8080, run the jar with `--server.port=8081` and use `http://localhost:8081` for API calls. Live verification on the development machine used this override because port 8080 was occupied.
+If another application already uses port 8080, run the jar with `--server.port=8081` and use `http://localhost:8081` for API calls. Live verification passed on the default port 8080 after the conflicting application was closed.
 
 ## Seed data and database
 
