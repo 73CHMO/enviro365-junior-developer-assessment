@@ -11,14 +11,16 @@
 	<groupId>com.enviro.assessment</groupId>
 	<artifactId>junior-developer-assessment</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>Enviro365 Junior Developer Assessment</name>
+	<description>Investment portfolio and withdrawal management backend by Alex Motaung</description>
 	<url/>
 	<licenses>
 		<license/>
 	</licenses>
 	<developers>
-		<developer/>
+		<developer>
+			<name>Alex Motaung</name>
+		</developer>
 	</developers>
 	<scm>
 		<connection/>
